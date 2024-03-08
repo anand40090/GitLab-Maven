@@ -5,7 +5,7 @@
 
 ************************************************************************************
 variables:
-  DOCKER_REGISTRY: 908198849120.dkr.ecr.ap-south-1.amazonaws.com
+  DOCKER_REGISTRY: XXXXXXXXXXXXX.dkr.ecr.ap-south-1.amazonaws.com
   APP_NAME: mavenapp
   TAG: "$CI_COMMIT_SHORT_SHA-$CI_PIPELINE_ID"
 
