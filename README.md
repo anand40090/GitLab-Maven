@@ -1,5 +1,5 @@
 # GitLab-Maven
-This project is for GitLab Maven Integration
+This project is for GitLab Maven Integration for Java SpringBopot application
 
 ## High Level Steps 
 1. Create GitLab Account
