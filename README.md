@@ -5,7 +5,8 @@ This project is for GitLab Maven Integration for Java SpringBopot application
 1. Create GitLab Account
 2. Create EC2 Instance and install the required applications in it (Git, Docker, Maven, GitLab Runner)
 3. Register GitLab Runner
-4. Create AWS Registery (ECR) and intigrate it with GitLab to store the docker image 
+4. Create AWS Registery (ECR) and intigrate it with GitLab to store the docker image
+5. Clone your GitLab reposiroty on your system, push your project data on GitLab
 
 Reference - 
 1. [How to Build Java Project using Maven in GitLab CI|Install GitLab Runner on Ubuntu 22.04 LTS| GitLab](https://youtu.be/yz8Hlwvc3Ek?si=VuDN8tsUNViFe6Qh)
