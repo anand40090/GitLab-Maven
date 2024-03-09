@@ -95,3 +95,73 @@ To push the data to gitlab repository >> git push >> input username password whe
 ![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/72ad2996-20ae-4b61-ba40-41e8e8f80fba)
 
 
+## Create .gitlab-ci.yml file in the gitlab project reposiroty to run the CI-CD pipeline 
+
+Got to gitlab project >> create the .gitlab-ci-.yml file 
+
+Once this file is created and commited over the gitlab project, it will trigger the CI-CD pipeline and start the stages as mentioned in the file. 
+
+Here we are doing 3 stage CI-CD pipelien - 
+
+1. Build the maven project
+2. Test the built maven project
+3. Build the docker image from the JAR file which is created while maven project build 
+
+```
+
+variables:
+  MAVEN_OPTS: -Dmaven.repo.local=.m2/repository
+
+image: maven:latest
+
+stages:
+    - build
+    - test
+    - package
+    - deploy
+
+
+cache:
+  paths:
+    - .m2/repository
+    - target
+
+build_job:
+  stage: build
+  tags:
+    - docker 
+
+  script: 
+    - echo "Maven compile started"
+    - "mvn compile"
+
+
+test_job:
+  stage: test
+  tags:
+    - docker 
+
+  script: 
+    - echo "Maven test started"
+    - "mvn test"
+
+package_job:
+  stage: package
+  tags:
+    - docker 
+
+  script: 
+    - echo "Maven packaging started"
+    - "mvn package"
+
+
+Deploy_job:
+  stage: deploy
+  tags:
+    - docker 
+
+  script: 
+    - echo "Maven deploy started"
+
+
+```
