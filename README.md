@@ -166,3 +166,7 @@ Deploy_job:
 
 
 ```
+
+Output when you commit the .gitlab-ci.yml file, it will triger the jobs 
+
+![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/9797d4fc-8e88-4984-9655-1f3d2bccef11)
