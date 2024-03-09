@@ -83,7 +83,7 @@ Copy the gitlab project url >> Got to Gitlab project >> Find the Clone with HTTP
 To clone the gitlab repository >> git clone https://gitlab.com/anand40090/springboot.git
 It will craete the springboot folder in your system, save your project data into it and keep it ready to be uploaded on gitlab reposiroty.
 
-To add your project data to commit on gitlab reposiorty >> go to project springboot project folder >> run git add *
+To add your project data to commit on gitlab reposiorty >> go to project springboot project folder >> git add *
 
 To commit the project data on gitlab repository >> git commit -m '1st commit'
 
