@@ -37,17 +37,7 @@ Once the gitlab account is created, create a new project
 ![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/3be06e67-1fa5-4fbb-945e-4b807ee9a7ff)
 
 ## Register gitlab runner with the above created EC2 instance 
-
-Step 1: To Register GitLab-Runner run the below command:
-
-'''
-
-sudo gitlab-runner register
-
-'''
-
-Step 2: Regiter gitlab runner with Ec2 Instance 
-
+ 
 1. First got to gitlab account >> project >> setting >> CI- CD >> search for runners >> expant and click on new runner
 
 ![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/84902b1b-8b27-47ad-a252-db152b239ed1)
@@ -58,11 +48,22 @@ Step 2: Regiter gitlab runner with Ec2 Instance
 
 3. You will get gitlab token for runner registretion, follow the commands on the Ec2 instance in order to regiter it with gitlab as a runner worker
 
+```
+To register runner >> gitlab-runner register  --url https://gitlab.com  --token glrt-tYK95Ynj6qTBsLtw6vbM
+To run the runner once registration >> gitlab-runner run
+
+```
+
 ![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/321ce5af-4a5f-4921-aeb3-a69e5f59969a)
 
 ![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/1e16cf75-c70c-43bf-92ac-f391ec6c215a)
 
 ![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/b85f7116-3a1d-4828-b29e-0a81ac9923a3)
+
+Once the runner is properly regitered it will reflect in the same page 
+
+![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/5e78981d-7013-4d82-a9a7-3d48a06d3eb4)
+
 
 
 ## Clone the Gitlab project reposiroty to upload the project 
@@ -70,7 +71,7 @@ Step 2: Regiter gitlab runner with Ec2 Instance
 Once the Ec2 instance is ready to work as a gitlab runner worker, 
 then clone the gitlab project with your local system from where you need to upload your project data for CI-CD piple build. 
 
-Copy the gitlab project url >> Got to Gitlab project >> Finf the Clone with HTTPS option >> copy the URL and clone with your EC2 instance or local system from where you want to upload the project data. 
+Copy the gitlab project url >> Got to Gitlab project >> Find the Clone with HTTPS option >> copy the URL and clone with your EC2 instance or local system from where you want to upload the project data. 
 
 ![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/e7f5fdf4-61e4-4b1e-9307-5a15726b320d)
 
