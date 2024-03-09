@@ -11,7 +11,7 @@ ___
 ## First create EC2 instance and install the required software on it - 
 
 ```
-Install apache mave >> sudo apt install maven -y
+Install apache maven >> sudo apt install maven -y
 
 Install Docker engine >> sudo apt install docker.io -y
 
