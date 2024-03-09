@@ -50,6 +50,7 @@ Once the gitlab account is created, create a new project
 
 ```
 To register runner >> gitlab-runner register  --url https://gitlab.com  --token glrt-tYK95Ynj6qTBsLtw6vbM
+Select the executor when it will prompt for >> shell 
 To run the runner once registration >> gitlab-runner run
 
 ```
