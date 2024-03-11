@@ -5,6 +5,8 @@ To do this lab you would need -
 1. Gitlab Account
 2. EC2 instance
 3. Maven project
+4. AWS ECR reposiroty
+5. Sonarqube scanner 
 
 ___
 
@@ -20,7 +22,16 @@ Install Openjdk >> sudo apt install openjdk-11-jdk -y
 Install gitlab runner >>
 
 curl -L "https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh" | sudo bash
-sudo apt-get install gitlab-runner -y 
+sudo apt-get install gitlab-runner -y
+
+Install AWS CLI >>
+
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" 
+sudo apt install unzip
+unzip awscliv2.zip 
+sudo ./aws/install
+
+Run the sonarqube docker container >> docker run -d -p 9000:9000 sonarqube
 
 ```
 
@@ -96,6 +107,29 @@ To push the data to gitlab repository >> git push >> input username password whe
 ![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/8dcbe0c1-689e-4bd0-8c3d-1a934612b24f)
 
 ![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/72ad2996-20ae-4b61-ba40-41e8e8f80fba)
+
+## Configure sonarqube to intigrate with Gitlab 
+
+1. At very bigining we have already downloaded the sonarqube docker image and spined the container of port 9000, by running commnd "docker run -d -p 9000:9000 sonarqube"
+2. Run docker ps -a coommand on the Ubuntu system to check the docker container status of Sonarqube
+3. Use the EC2 Ubuntu instance ip address:9000 in browser to access the sonarqube dashboard
+4. Default username and password for sonarqube is admin / admin
+5. Generate the token from sonarqube for integration with gitlab >> Login sonarqube >> Go to My Account >> Security >> Generate Token
+6. Save the generated token to be hardcode in Gitlab variable
+
+
+![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/1eb22d7f-77da-4fe3-b8fa-c0aae0f9a7b9)
+
+## Intigrate Sonarqube with Gitlab 
+
+1. Login to gitlab account >> go to project >> go to setting >> CI-CD >> Find for variables >> Expand
+2. Create two variable - 1] SONAR_TOKEN >> Input the token generated from sonqrqube 2] SONAR_HOST_URL >> Input your sonarqube URL (http://13.126.187.216:9000/)
+
+![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/09f2926d-e96a-48f7-acd4-2397b811f207)
+
+
+![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/5f6c7ffd-aa5d-40ad-966b-3d69d43184d3)
+
 
 
 ## Create .gitlab-ci.yml file in the gitlab project reposiroty to run the CI-CD pipeline 
