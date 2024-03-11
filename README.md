@@ -30,6 +30,7 @@ curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip
 sudo apt install unzip
 unzip awscliv2.zip 
 sudo ./aws/install
+aws --version
 
 Run the sonarqube docker container >> docker run -d -p 9000:9000 sonarqube
 
@@ -144,25 +145,26 @@ Got to gitlab project >> create the .gitlab-ci-.yml file
 
 Once this file is created and commited over the gitlab project, it will trigger the CI-CD pipeline and start the stages as mentioned in the file. 
 
-Here we are doing 3 stage CI-CD pipelien - 
+Here we are doing 4 stage CI-CD pipelien - 
 
 1. Build the maven project
-2. Test the built maven project
-3. Build the docker image from the JAR file which is created while maven project build 
+2. Test the built maven project with sonarscanner
+3. Build the docker image from the JAR file which is created while maven project build
+4. Upload the docker image to AWS ECR
 
 ```
-
-variables:
-  MAVEN_OPTS: -Dmaven.repo.local=.m2/repository
-
-image: maven:latest
-
 stages:
     - build
-    - test
-    - package
-    - deploy
+    - sonarqube-check
+    - sonarqube-vulnerability-report
+    - Docker-image
 
+variables:
+  MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode"
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+  SONAR_SCANNER_VERSION: "10.4.1"  # Updated Sonar Scanner version  
+
+##image: maven:latest    
 
 cache:
   paths:
@@ -172,39 +174,58 @@ cache:
 build_job:
   stage: build
   tags:
-    - docker 
-
-  script: 
+    - "my-runner"
+  script:
     - echo "Maven compile started"
-    - "mvn compile"
-
-
-test_job:
-  stage: test
+    - mvn clean install
+    
+sonarqube-check:
+  stage: sonarqube-check
   tags:
-    - docker 
-
+    - "my-runner"
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
+    GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - .sonar/cache
   script: 
-    - echo "Maven test started"
-    - "mvn test"
+    - mvn verify sonar:sonar
+  allow_failure: true
+  only:
+    - merge_requests
+    - master
+    - main
+    - develop
 
-package_job:
-  stage: package
+sonarqube-vulnerability-report:
+  stage: sonarqube-vulnerability-report
   tags:
-    - docker 
+    - "my-runner"
+  script:
+    - 'curl -u "${SONAR_TOKEN}:" "${SONAR_HOST_URL}/api/issues/gitlab_sast_export?projectKey=maven&branch=${CI_COMMIT_BRANCH}&pullRequest=${CI_MERGE_REQUEST_IID}" -o gl-sast-sonar-report.json'
+  allow_failure: true
+  only:
+    - merge_requests
+    - master
+    - main
+    - develop
+  artifacts:
+    expire_in: 1 day
+    reports:
+      sast: gl-sast-sonar-report.json
+  dependencies:
+    - sonarqube-check
 
-  script: 
-    - echo "Maven packaging started"
-    - "mvn package"
-
-
-Deploy_job:
-  stage: deploy
+Docker-image:
+  stage: Docker-image   
   tags:
-    - docker 
-
-  script: 
-    - echo "Maven deploy started"
+    - "my-runner"
+  script:
+    - echo "Docker build image"
+    
+    - docker build -t  latest .
 
 
 ```
