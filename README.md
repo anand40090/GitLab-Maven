@@ -137,7 +137,12 @@ To push the data to gitlab repository >> git push >> input username password whe
 
 ![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/5f6c7ffd-aa5d-40ad-966b-3d69d43184d3)
 
+## Create AWS ECR and IAM User with Secret and Access key to push to Docker Image on ECR
 
+1. Create ECR reposiroty >> Go to AWS Dashboard >> Go to ECR >> Create Reposiorty
+2. Create AWS User to authenticate the ECR and push docker image to ECR >> Go to AWS Dashboard >> IAM User >> Create User >> Download the Secret Key and Access Key of the user
+3. Create Variable in Gitlab to call during CI-CD pipeline >>  Go to Gitlab account >>  go to project >> go to setting >> CI-CD >> Find for variables >> Expand
+4. Create 1] AWS_Access_KEY_ID 2] AWS_Default_Region 3] AWS_Secret_access_key
 
 ## Create .gitlab-ci.yml file in the gitlab project reposiroty to run the CI-CD pipeline 
 
@@ -157,7 +162,7 @@ stages:
     - build
     - sonarqube-check
     - sonarqube-vulnerability-report
-    - Docker-image
+    - push-image-to-aws-ecr
 
 variables:
   MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode"
@@ -218,18 +223,25 @@ sonarqube-vulnerability-report:
   dependencies:
     - sonarqube-check
 
-Docker-image:
-  stage: Docker-image   
+##Go to AWS ECR reposiroty and check for view push command option, there below mentioned script is available to built docker image and to push to ECR
+
+Push Docker Image to AWS ECR:
+  stage: push-image-to-aws-ecr
   tags:
     - "my-runner"
   script:
-    - echo "Docker build image"
-    
-    - docker build -t  latest .
-
-
+    - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 381492310959.dkr.ecr.ap-south-1.amazonaws.com
+    - docker build -t gitlab-images .
+    - docker tag gitlab-images:latest 381492310959.dkr.ecr.ap-south-1.amazonaws.com/gitlab-images:latest
+    - docker push 381492310959.dkr.ecr.ap-south-1.amazonaws.com/gitlab-images:latest
 ```
 
 Output when you commit the .gitlab-ci.yml file, it will triger the jobs 
 
-![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/9797d4fc-8e88-4984-9655-1f3d2bccef11)
+![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/0c217812-7c89-4198-92b6-6a22b67e2d79)
+
+Docker image uploaded to ECR - 
+
+![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/e5ccfe33-f74c-41eb-8734-b4cdca3758f9)
+
+
