@@ -118,7 +118,13 @@ To push the data to gitlab repository >> git push >> input username password whe
 6. Save the generated token to be hardcode in Gitlab variable
 
 
+
 ![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/1eb22d7f-77da-4fe3-b8fa-c0aae0f9a7b9)
+
+
+
+![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/05895dd3-a945-4631-85e0-6a51f58e6f39)
+
 
 ## Intigrate Sonarqube with Gitlab 
 
