@@ -262,6 +262,7 @@ stages:
   - test
   - sonarqube
   - quality_gate
+  - push-image-to-aws-ecr
 
 cache:
   paths:
@@ -287,8 +288,8 @@ sonarqube:
   stage: sonarqube
   image: sonarsource/sonar-scanner-cli:latest
   variables:
-    SONAR_HOST_URL: "http://13.233.7.77:9000" # Replace Sonar Scanner URL with yours 
-    SONAR_TOKEN: "sqa_581115cc8fd3d1aa10c725cce8c5e8c28511f083" # Replace Sonar Scanner Token with yours 
+    SONAR_HOST_URL: "http://13.233.7.77:9000"
+    SONAR_TOKEN: "sqa_581115cc8fd3d1aa10c725cce8c5e8c28511f083"
   script:
     - sonar-scanner
 
@@ -298,16 +299,28 @@ quality_gate:
   image: sonarsource/sonar-scanner-cli:latest
   script:
     - apk add --no-cache jq
-    - sonar-scanner -Dsonar.host.url=http://13.233.7.77:9000 -Dsonar.login=$SONAR_TOKEN    # Replace Sonar Scanner URL with yours 
+    - sonar-scanner -Dsonar.host.url=http://13.233.7.77:9000 -Dsonar.login=$SONAR_TOKEN
     - |
       QUALITY_GATE_STATUS=$(curl -s -u $SONAR_TOKEN: "$SONAR_HOST_URL/api/qualitygates/project_status?projectKey=$CI_PROJECT_KEY" | jq -r '.projectStatus.status')
     - if [ "$QUALITY_GATE_STATUS" = "ERROR" ]; then echo "Quality gate status is ERROR"; exit 1; else echo "Quality gate status is OK"; fi
   only:
     - master  
 
+##Go to your AWS ECR reposiroty and check for view push command option, there below mentioned script is available to build docker image and to push image on AWS ECR
+
+Push Docker Image to AWS ECR:
+  stage: push-image-to-aws-ecr
+  tags:
+    - "my-runner"
+  script:
+    - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 381492310959.dkr.ecr.ap-south-1.amazonaws.com
+    - docker build -t gitlab-images .
+    - docker tag gitlab-images:latest 381492310959.dkr.ecr.ap-south-1.amazonaws.com/gitlab-images:latest
+    - docker push 381492310959.dkr.ecr.ap-south-1.amazonaws.com/gitlab-images:latest
+
 ```
 
-## Output - 
+## Pipeline Outputs - 
 
 ## 1. For sonar scanner status "PASS"
 
@@ -317,6 +330,17 @@ quality_gate:
 
 ![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/9e88ddec-4769-47b3-8a11-7ae46cfd5e66)
 
+## 3. For Docker image build and image push to AWS ECR
+
+![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/64f95a09-a234-42a0-a56b-a7fede26f8ef)
+
+
+## 4. Docker Image Pushed to AWS ECR repository 
+
+![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/186c3800-4739-40e1-8773-c53e6077339f)
+
+
+![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/bf0f46cf-ba92-4271-9bb8-094aa22ae791)
 
 
 
