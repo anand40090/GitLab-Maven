@@ -3,8 +3,8 @@
 In this lab we would be doing maven project intitrgaion with gitlab. 
 To do this lab you would need - 
 1. Gitlab Account
-2. EC2 instance
-3. Maven project
+2. AWS EC2 Ubuntu instance (t2.micro or t2.medium) 
+3. One working Maven project
 4. AWS ECR reposiroty
 5. Sonarqube scanner 
 
@@ -165,11 +165,9 @@ stages:
     - push-image-to-aws-ecr
 
 variables:
-  MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode"
+  MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode" ##
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
   SONAR_SCANNER_VERSION: "10.4.1"  # Updated Sonar Scanner version  
-
-##image: maven:latest    
 
 cache:
   paths:
@@ -243,5 +241,82 @@ Output when you commit the .gitlab-ci.yml file, it will triger the jobs
 Docker image uploaded to ECR - 
 
 ![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/e5ccfe33-f74c-41eb-8734-b4cdca3758f9)
+
+
+
+# 2.Gitlab CI Pipeline Example with Docker Executor
+
+GitLab Runner uses the Docker executor to run jobs on Docker images. 
+
+You can use the Docker executor to: Maintain the same build environment for each job. 
+
+Use the same image to test commands locally without the requirement of running a job in the CI server.
+
+Copy the below code in .gitlab-cy.yml file for docker executor pipeline, 
+ensure to have maven project is available on the EC2 instance on which your gitlab Runner is running.
+
+```
+# Define stages of the pipeline
+stages:
+  - build
+  - test
+  - sonarqube
+  - quality_gate
+
+cache:
+  paths:
+    - .m2/repository
+    - target
+
+# Define job for building Maven project
+build:
+  stage: build
+  image: maven:latest
+  script:
+    - mvn clean package
+
+# Define job for running tests (if applicable)
+test:
+  stage: test
+  image: maven:latest
+  script:
+    - mvn test
+
+# Define job for running SonarQube analysis
+sonarqube:
+  stage: sonarqube
+  image: sonarsource/sonar-scanner-cli:latest
+  variables:
+    SONAR_HOST_URL: "http://13.233.7.77:9000" # Replace Sonar Scanner URL with yours 
+    SONAR_TOKEN: "sqa_581115cc8fd3d1aa10c725cce8c5e8c28511f083" # Replace Sonar Scanner Token with yours 
+  script:
+    - sonar-scanner
+
+# Define job for checking Quality Gate status
+quality_gate:
+  stage: quality_gate
+  image: sonarsource/sonar-scanner-cli:latest
+  script:
+    - apk add --no-cache jq
+    - sonar-scanner -Dsonar.host.url=http://13.233.7.77:9000 -Dsonar.login=$SONAR_TOKEN    # Replace Sonar Scanner URL with yours 
+    - |
+      QUALITY_GATE_STATUS=$(curl -s -u $SONAR_TOKEN: "$SONAR_HOST_URL/api/qualitygates/project_status?projectKey=$CI_PROJECT_KEY" | jq -r '.projectStatus.status')
+    - if [ "$QUALITY_GATE_STATUS" = "ERROR" ]; then echo "Quality gate status is ERROR"; exit 1; else echo "Quality gate status is OK"; fi
+  only:
+    - master  
+
+```
+
+## Output - 
+
+## 1. For sonar scanner status "PASS"
+
+![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/17121301-32b1-49cc-a7ca-ae654f2c7a29)
+
+## 2. For sonar scanner status failed with warning 
+
+![image](https://github.com/anand40090/GitLab-Maven/assets/32446706/9e88ddec-4769-47b3-8a11-7ae46cfd5e66)
+
+
 
 
